@@ -85,12 +85,14 @@ Every handler shows up in the engine's profiler as `GameFixes::<fix>::<function>
 
 ## Building
 
-Requires `S2SDK` (or `HL2SDKCS2`) and `MMSOURCE_DEV` in the environment (alliedmodders/s2sdk `cs2` branch, metamod-source; the game protobufs are generated from s2sdk's own `.proto` files).
+Requires `S2SDK` (or `HL2SDKCS2`) and `MMSOURCE_DEV` in the environment ([s2script/s2sdk](https://github.com/s2script/s2sdk) `s2script-cs2` branch, metamod-source; the game protobufs are generated from s2sdk's own `.proto` files).
+
+`scripts/fetch-sdk.sh [dir]` fetches the exact s2sdk, s2sdk-manifests and Metamod:Source commits CI builds against. Point `S2SDK`, `S2SDK_MANIFESTS_DIR` and `MMSOURCE_DEV` at what it fetched.
 
 CMake, for local development (CLion):
 
 ```
-git clone --recursive https://github.com/SlynxCZ/GameFixes_mm
+git clone --recursive https://github.com/s2script/GameFixes_mm
 cmake -S GameFixes_mm -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```

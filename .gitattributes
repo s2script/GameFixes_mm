@@ -1,0 +1,2 @@
+# Bash reads this on the Windows runner too: keep it LF there.
+scripts/fetch-sdk.sh text eol=lf
