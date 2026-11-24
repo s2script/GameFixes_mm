@@ -1,3 +1,2 @@
-# Bash and git apply read these on the Windows runner too: keep them LF there.
+# Bash reads this on the Windows runner too: keep it LF there.
 scripts/fetch-sdk.sh text eol=lf
-patches/** text eol=lf
