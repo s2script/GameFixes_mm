@@ -21,3 +21,4 @@ CS2 1.41.9.2: built against the fixed IVEngineServer2 (new virtual at slot 65), 
 New fix abstract_entity (on by default): entities whose class cannot be constructed (weapon_cs_base in old map ports and their game_player_equip) are refused instead of crashing the server at libserver+0x22e6506.
 Unload safety for failed or partial loads (disabled fixes no longer leak hooks, null vtables refused), null-safe hook teardown, NetworkStateChanged slot scan limited to 16 bytes; built against s2sdk cb545fbe.
 workshop_voice removed: Valve fixed voice on workshop maps in the game.
+CS2 build 26879581: built against s2sdk with the new ISource2Server virtual at slot 14 (GameFrame 19 -> 20), which fixes the map-load crash in KeyValues::Dump; SDKs pinned to commits, PRs build on CI.

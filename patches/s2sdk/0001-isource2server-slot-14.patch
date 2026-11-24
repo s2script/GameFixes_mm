@@ -1,0 +1,15 @@
+diff --git a/public/engine2/isource2server.h b/public/engine2/isource2server.h
+index ed2a6b5..517f16e 100644
+--- a/public/engine2/isource2server.h
++++ b/public/engine2/isource2server.h
+@@ -141,6 +141,10 @@ public:
+ 	// Let the game .dll allocate it's own network/shared string tables
+ 	virtual void			GameCreateNetworkStringTables( void ) = 0;
+ 
++	// Added in CS2 build 26879581 (Nov 23 2026): a one-line forward to a game-system singleton that
++	// GameCreateNetworkStringTables also calls into. Every later slot, GameFrame included, moves up by one.
++	virtual void			unk_001( void ) = 0;
++
+ 	virtual void			WriteSignonMessages( const bf_write &buf ) = 0;
+ 
+ 	virtual void			PreWorldUpdate( bool simulating ) = 0;

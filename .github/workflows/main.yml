@@ -6,7 +6,8 @@ name: Continuous Integration
 #   * change pushbuild.txt on main -- the version job below picks the next
 #     tag (highest v* tag, last number plus one), the builds run against it
 #     and the release job creates it once they pass;
-#   * run it by hand (workflow_dispatch) -- builds as a check, releases nothing.
+#   * run it by hand (workflow_dispatch) -- builds as a check, releases nothing;
+#   * open or update a pull request -- same: both builds as a check, no release.
 #
 # Pushes to main that leave pushbuild.txt alone stop at the version job,
 # which is a few seconds. Everything after it is gated on its outputs.
@@ -16,6 +17,7 @@ on:
       - main
     tags:
       - '*'
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -57,10 +59,10 @@ jobs:
               ;;
           esac
 
-          # A manual run is a build check: no tag, no release.
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+          # A manual run or a pull request is a build check: no tag, no release.
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             echo "build=true" >> "$GITHUB_OUTPUT"
-            echo "Manual run -- building without a release."
+            echo "$GITHUB_EVENT_NAME -- building without a release."
             exit 0
           fi
 
@@ -79,10 +81,11 @@ jobs:
             exit 0
           fi
 
-          # Highest v* tag with its last number plus one; v1.0.0 when there is none.
+          # Highest v* tag with its last number plus one. With none (a fresh fork),
+          # carry on from SlynxCZ/GameFixes_mm, which stopped at v1.0.18.
           latest="$(git tag --list 'v*' --sort=-v:refname | head -n1)"
           if [ -z "$latest" ]; then
-            next="v1.0.0"
+            next="v1.0.19"
           else
             next="${latest%.*}.$(( ${latest##*.} + 1 ))"
           fi
@@ -137,28 +140,13 @@ jobs:
           submodules: recursive
 
       - name: Prepare SDK directory
-        shell: powershell
+        # The same pinned commits and patches/s2sdk/*.patch as the Linux build.
+        shell: bash
         run: |
-
-          $SDK = "C:\sdk"
-          $S2SDK = "$SDK\s2sdk"
-          $S2SDK_MANIFESTS = "$SDK\s2sdk-manifests"
-          $MMS = "$SDK\metamod-source"
-
-          if (Test-Path $SDK) { Remove-Item $SDK -Recurse -Force }
-          New-Item -ItemType Directory -Path $SDK | Out-Null
-
-          git clone --recursive --branch cs2 --single-branch https://github.com/Source2Mod/s2sdk $S2SDK
-          git clone --branch master --single-branch https://github.com/Source2Mod/s2sdk-manifests $S2SDK_MANIFESTS
-          git clone --recursive --branch master --single-branch https://github.com/Source2Mod/metamod-source $MMS
-
-          $S2SDK_UNIX = $S2SDK.Replace("\", "/")
-          $S2SDK_MANIFESTS_UNIX = $S2SDK_MANIFESTS.Replace("\", "/")
-          $MMS_UNIX    = $MMS.Replace("\", "/")
-
-          echo "S2SDK=$S2SDK_UNIX"      >> $env:GITHUB_ENV
-          echo "S2SDK_MANIFESTS_DIR=$S2SDK_MANIFESTS_UNIX" >> $env:GITHUB_ENV
-          echo "MMSOURCE_DEV=$MMS_UNIX"  >> $env:GITHUB_ENV
+          bash scripts/fetch-sdk.sh C:/sdk
+          echo "S2SDK=C:/sdk/s2sdk" >> "$GITHUB_ENV"
+          echo "S2SDK_MANIFESTS_DIR=C:/sdk/s2sdk-manifests" >> "$GITHUB_ENV"
+          echo "MMSOURCE_DEV=C:/sdk/metamod-source" >> "$GITHUB_ENV"
 
       - name: Checkout AMBuild
         uses: actions/checkout@v4
